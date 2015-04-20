@@ -2,6 +2,8 @@ package join;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -15,9 +17,6 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.sail.memory.MemoryStore;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 public class AbstractJoinPrototype {
 
 	protected static final String MODEL_PREFIX = "/home/szarnyasg/git/trainbenchmark/models/railway-repair-";
@@ -29,10 +28,10 @@ public class AbstractJoinPrototype {
 	protected static final String DEFINEDBY_TYPE = BASE_PREFIX + "definedBy";
 	protected static final String SWITCH_TYPE = BASE_PREFIX + "switch";
 
-	protected Multimap<Long, Long> switches;
-	protected Multimap<Long, Long> followss;
-	protected Multimap<Long, Long> sensors;
-	protected Multimap<Long, Long> definedBys;
+	protected Set<Tuple> switches;
+	protected Set<Tuple> followss;
+	protected Set<Tuple> sensors;
+	protected Set<Tuple> definedBys;
 
 	protected RepositoryConnection con;
 	protected ValueFactory f;
@@ -59,8 +58,8 @@ public class AbstractJoinPrototype {
 		}
 	}
 
-	private Multimap<Long, Long> collectEdges(final String edgeType) throws RepositoryException {
-		final Multimap<Long, Long> edges = HashMultimap.create();
+	private Set<Tuple> collectEdges(final String edgeType) throws RepositoryException {
+		final Set<Tuple> edges = new HashSet<>();
 
 		final URI edgeTypeURI = f.createURI(edgeType);
 		final RepositoryResult<Statement> statements = con.getStatements(null, edgeTypeURI, null, true);
@@ -69,7 +68,7 @@ public class AbstractJoinPrototype {
 			final long subject = RDFHelper.extractId(s.getSubject().stringValue());
 			final long object = RDFHelper.extractId(s.getObject().stringValue());
 
-			edges.put(subject, object);
+			edges.add(new Tuple(subject, object));
 		}
 
 		return edges;
