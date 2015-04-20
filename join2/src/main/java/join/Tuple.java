@@ -1,5 +1,6 @@
 package join;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -8,8 +9,20 @@ public class Tuple {
 
 	final List<Long> tuple;
 
-	public Tuple(final Long... items) {
-		this.tuple = ImmutableList.copyOf(items);
+	public Tuple(final Long... elements) {
+		this.tuple = ImmutableList.copyOf(elements);
+	}
+
+	Tuple(final List<Long> tuple) {
+		this.tuple = tuple;
+	}
+
+	public static Tuple createTuple(final Long... elements) {
+		return new Tuple(elements);
+	}
+
+	public static Tuple createTuple(final List<Long> tuple) {
+		return new Tuple(tuple);
 	}
 
 	public Long get(final int i) {
@@ -55,4 +68,11 @@ public class Tuple {
 		return true;
 	}
 
+	public Tuple extract(final List<Integer> mask) {
+		final List<Long> list = new ArrayList<>(mask.size());
+		for (final Integer m : mask) {
+			list.add(tuple.get(m));
+		}
+		return new Tuple(list);
+	}
 }

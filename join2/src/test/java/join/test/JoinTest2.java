@@ -12,8 +12,8 @@ import com.google.common.base.Stopwatch;
 
 public class JoinTest2 {
 
-	private static final int MIN = 32;
-	private static final int MAX = 32;
+	private static final int MIN = 64;
+	private static final int MAX = 64;
 
 	@BeforeClass
 	public static void init() {

@@ -1,21 +1,19 @@
 package join;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.LinkedList;
 
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import join.test.MyCollector;
+
 import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.base.RepositoryBase;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
-import org.openrdf.sail.memory.MemoryStore;
+import org.openrdf.rio.turtle.TurtleParser;
 
 public class AbstractJoinPrototype {
 
@@ -28,50 +26,33 @@ public class AbstractJoinPrototype {
 	protected static final String DEFINEDBY_TYPE = BASE_PREFIX + "definedBy";
 	protected static final String SWITCH_TYPE = BASE_PREFIX + "switch";
 
-	protected Set<Tuple> switches;
-	protected Set<Tuple> followss;
-	protected Set<Tuple> sensors;
-	protected Set<Tuple> definedBys;
+	protected Collection<Tuple> switches = new LinkedList<>();
+	protected Collection<Tuple> followss = new LinkedList<>();
+	protected Collection<Tuple> sensors = new LinkedList<>();
+	protected Collection<Tuple> definedBys = new LinkedList<>();
 
-	protected RepositoryConnection con;
-	protected ValueFactory f;
+	// protected final StatementCollector collector = new StatementCollector();
+	protected final MyCollector collector = new MyCollector();
+	protected final ValueFactory f = new ValueFactoryImpl();
 
 	public void load(final int size) throws IOException {
-		final RepositoryBase repository = new SailRepository(new MemoryStore());
 		final File modelFile = new File(MODEL_PREFIX + size + MODEL_EXTENSION);
 
+		final TurtleParser parser = new TurtleParser();
+		final InputStream inputStream = new FileInputStream(modelFile);
+
+		collector.registerCollection(f, SWITCH_TYPE, switches);
+		collector.registerCollection(f, FOLLOWS_TYPE, followss);
+		collector.registerCollection(f, SENSOR_EDGE_TYPE, sensors);
+		collector.registerCollection(f, DEFINEDBY_TYPE, definedBys);
+
 		try {
-			repository.initialize();
-			con = repository.getConnection();
-			con.add(modelFile, BASE_PREFIX, RDFFormat.TURTLE);
-
-			f = repository.getValueFactory();
-
-			switches = collectEdges(SWITCH_TYPE);
-			followss = collectEdges(FOLLOWS_TYPE);
-			sensors = collectEdges(SENSOR_EDGE_TYPE);
-			definedBys = collectEdges(DEFINEDBY_TYPE);
-
-			con.close();
-		} catch (RDFParseException | RepositoryException | IOException e) {
+			parser.setRDFHandler(collector);
+			parser.setValueFactory(f);
+			parser.parse(inputStream, "");
+		} catch (RDFParseException | IOException | RDFHandlerException e) {
 			throw new IOException(e);
 		}
-	}
-
-	private Set<Tuple> collectEdges(final String edgeType) throws RepositoryException {
-		final Set<Tuple> edges = new HashSet<>();
-
-		final URI edgeTypeURI = f.createURI(edgeType);
-		final RepositoryResult<Statement> statements = con.getStatements(null, edgeTypeURI, null, true);
-		while (statements.hasNext()) {
-			final Statement s = statements.next();
-			final long subject = RDFHelper.extractId(s.getSubject().stringValue());
-			final long object = RDFHelper.extractId(s.getObject().stringValue());
-
-			edges.add(new Tuple(subject, object));
-		}
-
-		return edges;
 	}
 
 }
