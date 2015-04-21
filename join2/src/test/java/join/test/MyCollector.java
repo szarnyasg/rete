@@ -34,6 +34,6 @@ public class MyCollector extends StatementCollector {
 
 		final Tuple tuple = new Tuple(subject, object);
 		collection.add(tuple);
-
 	}
+
 }

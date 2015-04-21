@@ -1,13 +1,15 @@
 package join;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-public class Tuple {
+public class Tuple implements Serializable {
 
-	final List<Long> list;
+	private static final long serialVersionUID = 1L;
+	protected final List<Long> list;
 
 	public Tuple(final Long... elements) {
 		this.list = ImmutableList.copyOf(elements);
