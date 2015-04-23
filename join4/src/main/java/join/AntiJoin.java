@@ -1,9 +1,8 @@
 package join;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class AntiJoin extends AbstractJoin {
 
@@ -16,16 +15,13 @@ public class AntiJoin extends AbstractJoin {
 		index(primaryIndexer, primaryMask, primaryInput);
 		index(secondaryIndexer, secondaryMask, secondaryInput);
 
-		final Collection<Tuple> joinedTuples = new HashSet<>();
-
-		for (final Entry<Tuple, Tuple> entry : primaryIndexer.entries()) {
-			final Tuple primaryTuple = entry.getValue();
+		final Collection<Tuple> joinedTuples = primaryIndexer.entries().parallelStream().filter(entry -> {
 			final Tuple primaryTupleJoinAttributes = entry.getKey();
-
-			if (secondaryIndexer.get(primaryTupleJoinAttributes).isEmpty()) {
-				joinedTuples.add(primaryTuple);
-			}
-		}
+			return secondaryIndexer.get(primaryTupleJoinAttributes).isEmpty();
+		}).map(entry -> {
+			final Tuple primaryTuple = entry.getValue();
+			return primaryTuple;
+		}).collect(Collectors.toList());
 
 		return joinedTuples;
 	}

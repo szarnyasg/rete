@@ -25,7 +25,7 @@ public class EquiJoin extends AbstractJoin {
 							final Tuple primaryTupleJoinAttributes = entry.getKey();
 							final Collection<Tuple> secondaryTuples = secondaryIndexer.get(primaryTupleJoinAttributes);
 
-							Stream<Tuple> stream = secondaryTuples.parallelStream().map(
+							final Stream<Tuple> stream = secondaryTuples.parallelStream().map(
 									secondaryTuple -> Tuple.join(primaryTuple, secondaryTuple, primaryMask, secondaryMask));
 							return stream;
 						}).collect(Collectors.toList());
