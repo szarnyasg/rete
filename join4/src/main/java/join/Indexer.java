@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -18,13 +16,19 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.turtle.TurtleParser;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
+import de.javakaffee.kryoserializers.guava.ImmutableListSerializer;
+
 public class Indexer {
 
-	private static final String INDEXER_DIR = "/home/szarnyasg/index/";
-	private static final String SWITCH = "switch";
-	private static final String DEFINEDBY = "definedBy";
-	private static final String SENSOR_EDGE = "sensor";
-	private static final String FOLLOWS = "follows";
+	protected static final String INDEXER_DIR = "/home/szarnyasg/index/";
+	protected static final String SWITCH = "switch";
+	protected static final String DEFINEDBY = "definedBy";
+	protected static final String SENSOR_EDGE = "sensor";
+	protected static final String FOLLOWS = "follows";
 	protected static final String MODEL_PREFIX = "/home/szarnyasg/git/trainbenchmark/models/railway-repair-";
 	protected static final String MODEL_EXTENSION = ".ttl";
 
@@ -33,6 +37,7 @@ public class Indexer {
 	protected static final String SENSOR_EDGE_TYPE = BASE_PREFIX + SENSOR_EDGE;
 	protected static final String DEFINEDBY_TYPE = BASE_PREFIX + DEFINEDBY;
 	protected static final String SWITCH_TYPE = BASE_PREFIX + SWITCH;
+	protected static final String INDEXER_EXTENSION = ".bin";
 
 	protected Collection<Tuple> switches = new LinkedList<>();
 	protected Collection<Tuple> followss = new LinkedList<>();
@@ -85,22 +90,35 @@ public class Indexer {
 	}
 
 	public void serialize(final String fileName, final Object collection) throws IOException {
-		final String filePath = INDEXER_DIR + fileName;
-		final FileOutputStream fileOut = new FileOutputStream(filePath);
-		final ObjectOutputStream out = new ObjectOutputStream(fileOut);
-		out.writeObject(collection);
-		out.close();
-		fileOut.close();
+		final String filePath = INDEXER_DIR + fileName + INDEXER_EXTENSION;
+		// final FileOutputStream fileOut = new FileOutputStream(filePath);
+		// final ObjectOutputStream out = new ObjectOutputStream(fileOut);
+		// out.writeObject(collection);
+		// out.close();
+		// fileOut.close();
+
+		final Kryo kryo = new Kryo();
+
+		ImmutableListSerializer.registerSerializers(kryo);
+		final Output output = new Output(new FileOutputStream(filePath));
+		kryo.writeObject(output, collection);
+		output.close();
 	}
 
 	public Collection<Tuple> deserialize(final String fileName) throws IOException, ClassNotFoundException {
-		final String filePath = INDEXER_DIR + fileName;
-		final FileInputStream fileIn = new FileInputStream(filePath);
-		final ObjectInputStream in = new ObjectInputStream(fileIn);
-		final Object collection = in.readObject();
-		in.close();
-		fileIn.close();
-		return (Collection<Tuple>) collection;
+		final String filePath = INDEXER_DIR + fileName + INDEXER_EXTENSION;
+		// final FileInputStream fileIn = new FileInputStream(filePath);
+		// final ObjectInputStream in = new ObjectInputStream(fileIn);
+		// final Object collection = in.readObject();
+		// in.close();
+		// fileIn.close();
+
+		final Kryo kryo = new Kryo();
+		ImmutableListSerializer.registerSerializers(kryo);
+		final Input input = new Input(new FileInputStream(filePath));
+
+		final Collection collection = kryo.readObject(input, LinkedList.class);
+		return collection;
 	}
 
 	public void reload(final int size) throws IOException, ClassNotFoundException {

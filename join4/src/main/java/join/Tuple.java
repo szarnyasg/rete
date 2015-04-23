@@ -11,6 +11,10 @@ public class Tuple implements Serializable {
 	private static final long serialVersionUID = 1L;
 	protected final List<Long> list;
 
+	public Tuple() {
+		this.list = null;
+	}
+	
 	public Tuple(final Long... elements) {
 		this.list = ImmutableList.copyOf(elements);
 	}

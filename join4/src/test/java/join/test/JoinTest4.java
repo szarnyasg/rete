@@ -46,21 +46,21 @@ public class JoinTest4 extends ReteTest {
 
 			final Stopwatch stopWatch2 = Stopwatch.createStarted();
 
-			final Stopwatch join1watch = Stopwatch.createStarted();
-			final Collection<Tuple> join1result = join1.join(indexer.getSwitches(), indexer.getFollowss());
-			final long join1Time = join1watch.elapsed(TimeUnit.MILLISECONDS);
+			final Stopwatch join1Watch = Stopwatch.createStarted();
+			final Collection<Tuple> join1Result = join1.join(indexer.getSwitches(), indexer.getFollowss());
+			final long join1Time = join1Watch.elapsed(TimeUnit.MILLISECONDS);
 
-			final Stopwatch join2watch = Stopwatch.createStarted();
-			final Collection<Tuple> join2result = join2.join(join1result, indexer.getSensors());
-			final long join2Time = join2watch.elapsed(TimeUnit.MILLISECONDS);
-			
+			final Stopwatch join2Watch = Stopwatch.createStarted();
+			final Collection<Tuple> join2Result = join2.join(join1Result, indexer.getSensors());
+			final long join2Time = join2Watch.elapsed(TimeUnit.MILLISECONDS);
+
 			final Stopwatch antiJoinWatch = Stopwatch.createStarted();
-			final Collection<Tuple> result = antiJoin.join(join2result, indexer.getDefinedBys());
+			final Collection<Tuple> result = antiJoin.join(join2Result, indexer.getDefinedBys());
 			final long antiJoinTime = antiJoinWatch.elapsed(TimeUnit.MILLISECONDS);
-			
+
 			final long queryTime = stopWatch2.elapsed(TimeUnit.MILLISECONDS);
 
-			System.out.println("join times: " + join1Time + "\t" + join2Time + "\t" + antiJoinTime);
+//			System.out.println("join times: " + join1Time + "\t" + join2Time + "\t" + antiJoinTime);
 			System.out.println(modelSize + "\t" + result.size() + "\t" + loadTime + "\t" + queryTime);
 		}
 	}
