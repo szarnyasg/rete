@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="SBT: com.esotericsoftware.yamlbeans:yamlbeans:1.09:jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib_managed/jars/com.esotericsoftware.yamlbeans/yamlbeans/yamlbeans-1.09.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib_managed/docs/com.esotericsoftware.yamlbeans/yamlbeans/yamlbeans-1.09-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib_managed/srcs/com.esotericsoftware.yamlbeans/yamlbeans/yamlbeans-1.09-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
